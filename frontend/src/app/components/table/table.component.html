@@ -1,0 +1,211 @@
+<p>List Of Bugs During The <strong>Testing Phase</strong> :</p>
+<button (click)="open(content)" class="btn btn-warning mb-2">Add Bug !!</button>
+<div *ngIf="Bugs.length > 0 && loaded">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Bug Name</th>
+        <th scope="col">Date Of Acurance</th>
+        <th scope="col">User</th>
+        <th scope="col" colspan="2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let bug of Bugs">
+        <th scope="row">{{ bug.id }}</th>
+        <td>
+          {{ bug.bugName }}
+        </td>
+        <td>{{ bug.bug_Ocurance | date: "short" }}</td>
+        <td>{{ bug.user_Name }}</td>
+        <td>
+          <button class="btn btn-success" (click)="bind(bug, content)">
+            Edit
+          </button>
+        </td>
+        <td>
+          <button
+            (click)="opendelModel(contentDel, bug)"
+            ngbTooltip="Remove The Bug !!"
+            class="btn btn-danger"
+          >
+            Resolve The Bug
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="d-flex justify-content-between p-2">
+    <ngb-pagination
+      [collectionSize]="collectionSize"
+      [(page)]="page"
+      [pageSize]="pageSize"
+      [maxSize]="3"
+      (pageChange)="refreshbugs()"
+    >
+    </ngb-pagination>
+  </div>
+</div>
+<div *ngIf="!loaded" class="d-flex justify-content-center">
+  <div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+
+<p class="text-center" *ngIf="Bugs.length == 0 && loaded">
+  No Bugs Yet Dedected !!
+</p>
+
+<!-- Model popup   -->
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">
+      {{ isEdit ? "Edit " : "Add" }} Bug
+    </h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #bugForm="ngForm" (ngSubmit)="onSubmit(bugForm)">
+      <input
+        type="hidden"
+        name="bugid"
+        #bugId="ngModel"
+        [(ngModel)]="curentbug.id"
+      />
+      <div class="form-group">
+        <label for="Bugname">Bug Name</label>
+        <div class="input-group">
+          <input
+            type="text"
+            name="Bugname"
+            id="Bugname"
+            placeholder="Enter The Bug Name"
+            class="form-control"
+            #bugName="ngModel"
+            [(ngModel)]="curentbug.bugName"
+            [ngClass]="{
+              'is-invalid':
+                (bugName.errors && bugName.touched) ||
+                (bugName.invalid && Submited)
+            }"
+            minlength="2"
+            required
+          />
+          <div [hidden]="!bugName.errors?.required" class="invalid-feedback">
+            Frist Name Required !!
+          </div>
+          <div [hidden]="!bugName.errors?.minlength" class="invalid-feedback">
+            Frist Name Is Invalid (Must Be > 2) !!
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="username">User Name</label>
+        <div class="input-group">
+          <input
+            type="text"
+            name="username"
+            id="username"
+            [(ngModel)]="curentbug.user_Name"
+            #bugUserName="ngModel"
+            [ngClass]="{
+              'is-invalid':
+                (bugUserName.errors && bugUserName.touched) ||
+                (bugUserName.invalid && Submited)
+            }"
+            minlength="2"
+            required
+            placeholder="Enter The User Name"
+            class="form-control"
+          />
+          <div
+            [hidden]="!bugUserName.errors?.required"
+            class="invalid-feedback"
+          >
+            User Name Required !!
+          </div>
+          <div
+            [hidden]="!bugUserName.errors?.minlength"
+            class="invalid-feedback"
+          >
+            User Name Is Invalid (Must Be > 2) !!
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="Bugoucurd">Date Of Ocurance</label>
+        <div class="input-group">
+          <input
+            type="date"
+            name="Bugoucrd"
+            id="Bugoucurd"
+            placeholder="Enter The Date Of Ocurance "
+            class="form-control"
+            [(ngModel)]="curentbug.bug_Ocurance"
+            #bugDateOfOcur="ngModel"
+            [ngClass]="{
+              'is-invalid':
+                (bugDateOfOcur.errors && bugDateOfOcur.touched) ||
+                (bugDateOfOcur.invalid && Submited)
+            }"
+            required
+          />
+          <div
+            [hidden]="!bugDateOfOcur.errors?.required"
+            class="invalid-feedback"
+          >
+            Date Is Required !!
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-dark">
+          {{ isEdit ? "Edit " : "Add" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<!-- ! Delete Model Poupup -->
+<ng-template #contentDel let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-title">Bug Deletion</h4>
+    <button
+      type="button"
+      class="close"
+      aria-describedby="modal-title"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p><strong>Are you sure you want to delete ?</strong></p>
+    <p>
+      All information associated to this Bug will be permanently deleted.
+      <span class="text-danger">This operation can not be undone.</span>
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="modal.dismiss('cancel click')"
+    >
+      Cancel
+    </button>
+    <button type="button" class="btn btn-danger" (click)="onDelete()">
+      Ok
+    </button>
+  </div>
+</ng-template>
