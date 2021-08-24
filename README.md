@@ -31,7 +31,7 @@
 
 #### conf
 
-- Install Noude Modules <br>
+- Install Node Modules <br>
 
 ```
 cd frontend
